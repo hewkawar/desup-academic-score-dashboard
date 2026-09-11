@@ -436,26 +436,28 @@ ${JSON.stringify(compressedData)}`;
                               </thead>
                               <tbody>
                                 {subj.details && subj.details.length > 0 ? (
-                                  subj.details.map((detail, dIndex) => {
-                                    const actual = calculateDetailActualPercent(detail);
-                                    return (
-                                      <tr key={dIndex} className="border-b last:border-0 hover:bg-gray-50">
-                                        <td className="px-4 py-2 font-medium text-gray-700">
-                                          {detail.item || (!detail.section && detail.weight === 100 ? 'รวมทั้งหมด (Total)' : '-')} <br />
-                                          <span className="text-gray-400 text-[10px]">{detail.section}</span>
-                                        </td>
-                                        <td className="px-4 py-2 text-center">
-                                          {detail.obtained_score !== null && detail.obtained_score !== undefined ? detail.obtained_score : '-'} 
-                                          / 
-                                          {detail.full_score || '-'}
-                                        </td>
-                                        <td className="px-4 py-2 text-center text-gray-500">{detail.weight || '-'}%</td>
-                                        <td className="px-4 py-2 text-center font-bold text-blue-600">
-                                          {actual !== null ? actual.toFixed(2) + '%' : '-'}
-                                        </td>
-                                      </tr>
-                                    );
-                                  })
+                                  subj.details
+                                    .filter(d => (d.item && d.item.trim() !== '') || d.weight === 100 || d.full_score !== null)
+                                    .map((detail, dIndex) => {
+                                      const actual = calculateDetailActualPercent(detail);
+                                      return (
+                                        <tr key={dIndex} className="border-b last:border-0 hover:bg-gray-50">
+                                          <td className="px-4 py-2 font-medium text-gray-700">
+                                            {detail.item || (!detail.section && detail.weight === 100 ? 'รวมทั้งหมด (Total)' : '-')} <br />
+                                            <span className="text-gray-400 text-[10px]">{detail.section}</span>
+                                          </td>
+                                          <td className="px-4 py-2 text-center">
+                                            {detail.obtained_score !== null && detail.obtained_score !== undefined ? detail.obtained_score : '-'} 
+                                            / 
+                                            {detail.full_score || '-'}
+                                          </td>
+                                          <td className="px-4 py-2 text-center text-gray-500">{detail.weight || '-'}%</td>
+                                          <td className="px-4 py-2 text-center font-bold text-blue-600">
+                                            {actual !== null ? actual.toFixed(2) + '%' : '-'}
+                                          </td>
+                                        </tr>
+                                      );
+                                    })
                                 ) : (
                                   <tr>
                                     <td colSpan="4" className="px-4 py-4 text-center text-gray-400">ไม่มีข้อมูลคะแนนย่อย</td>
