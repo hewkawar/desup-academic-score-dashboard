@@ -87,7 +87,7 @@ function App() {
   const [studentData, setStudentData] = useState(null);
   const [fileName, setFileName] = useState('คลิกเพื่อเลือกไฟล์ JSON');
   
-  const [apiKey, setApiKey] = useState('AQ.Ab8RN6Lapbn8phdNfTLu4UxmPuArUpa5WYp3P93Bs7kHsM75jg');
+  const [apiKey, setApiKey] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiResult, setAiResult] = useState('');
   const [aiError, setAiError] = useState('');
