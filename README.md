@@ -1,16 +1,69 @@
-# React + Vite
+# ระบบดึงข้อมูลและแสดงผลคะแนนวิชาการ (DESUP Academic Score Dashboard)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+โปรเจกต์นี้เป็นแหล่งรวมเครื่องมือและหน้าเว็บ (Dashboard) สำหรับดึงข้อมูลคะแนนเก็บและเกรดจากระบบบริการการศึกษา (DESUP) นำมาแสดงผลในรูปแบบที่สวยงามและวิเคราะห์ได้ง่ายขึ้น
 
-Currently, two official plugins are available:
+## 🚀 สคริปต์ดึงข้อมูลคะแนน (Score Extractor Script)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+ในไฟล์ `scripts/academic_score_extractor.js` จะมีสคริปต์ JavaScript อัตโนมัติ ที่คุณสามารถนำไปรันใน Developer Console ของเบราว์เซอร์ เพื่อกวาดข้อมูลเกรดและคะแนนเก็บทั้งหมดของคุณออกมาเป็นไฟล์ JSON ที่เป็นระเบียบ
 
-## React Compiler
+### วิธีใช้งาน:
+1. ล็อกอินเข้าสู่ระบบบริการการศึกษา และเข้าไปที่หน้า **"ตรวจสอบผลคะแนน/เกรด"**
+2. กดปุ่ม `F12` หรือ `Ctrl+Shift+I` (บน Mac ใช้ `Cmd+Option+I`) เพื่อเปิดเครื่องมือ Developer Tools ของ Chrome
+3. เลือกไปที่แท็บ **Console**
+4. คัดลอกโค้ดทั้งหมดในไฟล์ `scripts/academic_score_extractor.js` ไปวางใน Console
+5. กดปุ่ม **Enter** เพื่อรันสคริปต์
+6. **ปล่อยให้สคริปต์ทำงานและอย่าคลิกอะไรบนหน้าจอ** สคริปต์จะทำการ:
+   - ไล่กดเปิดดูข้อมูลทีละเทอม
+   - กดขยายตารางคะแนนย่อยของทุกรายวิชาที่มองเห็น
+   - ดึงข้อมูลคะแนนดิบ, คะแนนเต็ม, น้ำหนักคะแนน, ร้อยละ และหน่วยกิต
+7. เมื่อทำงานเสร็จสมบูรณ์ ไฟล์ชื่อ `my_academic_full_scores.json` จะถูกดาวน์โหลดลงเครื่องของคุณโดยอัตโนมัติ
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 📊 โครงสร้างข้อมูล JSON (Data Structure)
 
-## Expanding the Oxlint configuration
+ไฟล์ JSON ที่ได้ จะมีโครงสร้างที่พร้อมนำไปใช้งานต่อได้ทันที ดังนี้:
+```json
+{
+  "all_semesters": [
+    {
+      "semester": "2569/1_ม.5",
+      "subjects": [
+        {
+          "course_code": "ท32101",
+          "course_name": "ภาษาไทยพื้นฐาน 9",
+          "course_type": "พื้นฐาน",
+          "evaluation": "คำนวณเกรด",
+          "credits": 1.0,
+          "total_percentage": "85.5",
+          "grade": "4.0",
+          "details": [
+            {
+              "section": "สอบ Midterm",
+              "item": "สอบกลางภาค",
+              "full_score": 40,
+              "weight": 20,
+              "obtained_score": 35,
+              "obtained_percentage": 17.5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+## 🛠️ เทคโนโลยีที่ใช้ (Tech Stack)
+- React
+- Vite
+- Tailwind CSS
+
+## 💻 การรันโปรเจกต์ในเครื่อง (Local Development)
+หากต้องการรันโปรเจกต์ React Dashboard เพื่อพัฒนาต่อ:
+
+```bash
+# ติดตั้งแพ็กเกจที่จำเป็น
+npm install
+
+# รันเซิร์ฟเวอร์จำลอง
+npm run dev
+```
