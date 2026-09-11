@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { 
-  CloudUpload, GraduationCap, RotateCcw, CheckCircle2, 
+import {
+  CloudUpload, GraduationCap, RotateCcw, CheckCircle2,
   Sparkles, List, ChevronDown, ChevronUp, Loader2, AlertTriangle, Calculator
 } from 'lucide-react';
 import { marked } from 'marked';
@@ -28,7 +28,7 @@ const calculateDetailActualPercent = (detail) => {
 const calculateSubjectScore = (subject) => {
   const evalType = getEvalType(subject);
   if (evalType !== 'คำนวณเกรด' && evalType !== 'ผ่าน/ไม่ผ่าน') return null;
-  
+
   let totalFinalPercentage = 0;
   let hasScores = false;
 
@@ -51,7 +51,7 @@ const calculateSubjectScore = (subject) => {
 
 const getGradeString = (percent, gradingType) => {
   if (percent === null) return '-';
-  
+
   if (gradingType === 'ผ่าน/ไม่ผ่าน') {
     return percent >= 50 ? 'ผ' : 'มผ';
   }
@@ -86,12 +86,12 @@ const getGradeBadgeColor = (grade) => {
 function App() {
   const [studentData, setStudentData] = useState(null);
   const [fileName, setFileName] = useState('คลิกเพื่อเลือกไฟล์ JSON');
-  
+
   const [apiKey, setApiKey] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiResult, setAiResult] = useState('');
   const [aiError, setAiError] = useState('');
-  
+
   const [selectedSemester, setSelectedSemester] = useState(0);
   const [expandedSubjects, setExpandedSubjects] = useState(new Set());
 
@@ -100,7 +100,7 @@ function App() {
     if (!file) return;
 
     setFileName(`กำลังโหลด: ${file.name}`);
-    
+
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
@@ -172,19 +172,19 @@ function App() {
 ${JSON.stringify(compressedData)}`;
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:batchGenerateContent`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }]
         })
       });
 
       if (!response.ok) throw new Error(`API Error: ${response.status}`);
-      
+
       const data = await response.json();
       const markdownText = data.candidates[0].content.parts[0].text;
-      
+
       setAiResult(marked.parse(markdownText));
     } catch (error) {
       setAiError(error.message);
@@ -202,7 +202,7 @@ ${JSON.stringify(compressedData)}`;
           </div>
           <h1 className="text-2xl font-bold mb-2">อัพโหลดข้อมูลผลการเรียน</h1>
           <p className="text-gray-500 mb-6 text-sm">อัพโหลดไฟล์ JSON ของคุณเพื่อเปิดดู Dashboard และวิเคราะห์ด้วย AI</p>
-          
+
           <label className="block w-full cursor-pointer bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold py-3 px-4 rounded-xl border-2 border-dashed border-blue-300 transition duration-300">
             <span>{fileName}</span>
             <input type="file" accept=".json" className="hidden" onChange={handleFileUpload} />
@@ -214,7 +214,7 @@ ${JSON.stringify(compressedData)}`;
 
   const totalSemesters = studentData.all_semesters.length;
   const currentSemester = studentData.all_semesters[selectedSemester] || { subjects: [] };
-  
+
   const validSubjects = currentSemester.subjects.filter(s => {
     return getEvalType(s) !== null;
   });
@@ -231,7 +231,7 @@ ${JSON.stringify(compressedData)}`;
   validSubjects.forEach(subj => {
     const evalType = getEvalType(subj);
     const scorePercent = calculateSubjectScore(subj);
-    
+
     if (scorePercent !== null) {
       totalScoreCollected += scorePercent;
     }
@@ -240,7 +240,7 @@ ${JSON.stringify(compressedData)}`;
       const credits = parseFloat(subj.credits) || 0;
       const expectedGrade = getGradeString(scorePercent, evalType);
       const gradeVal = parseFloat(expectedGrade);
-      
+
       if (!isNaN(credits) && !isNaN(gradeVal)) {
         semesterCredits += credits;
         semesterGradePoints += (gradeVal * credits);
@@ -253,13 +253,13 @@ ${JSON.stringify(compressedData)}`;
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans text-gray-800">
       <div className="max-w-7xl mx-auto space-y-6">
-        
+
         <div className="flex justify-between items-center bg-white p-4 rounded-xl shadow-sm">
           <h1 className="text-xl font-bold text-gray-800 flex items-center">
             <GraduationCap className="text-blue-500 mr-2" size={28} /> Academic Dashboard
           </h1>
-          <button 
-            onClick={() => { setStudentData(null); setFileName('คลิกเพื่อเลือกไฟล์ JSON'); }} 
+          <button
+            onClick={() => { setStudentData(null); setFileName('คลิกเพื่อเลือกไฟล์ JSON'); }}
             className="flex items-center text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg transition"
           >
             <RotateCcw className="mr-1" size={16} /> อัพโหลดใหม่
@@ -271,11 +271,11 @@ ${JSON.stringify(compressedData)}`;
             <p className="text-gray-500 text-sm">จำนวนภาคเรียนทั้งหมด</p>
             <h2 className="text-3xl font-bold text-gray-800 mt-1">{totalSemesters}</h2>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500 fade-in" style={{animationDelay: '0.1s'}}>
+          <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-green-500 fade-in" style={{ animationDelay: '0.1s' }}>
             <p className="text-gray-500 text-sm">จำนวนวิชาทั้งหมด (ทุกเทอม)</p>
             <h2 className="text-3xl font-bold text-gray-800 mt-1">{totalSubjectsAcrossAll}</h2>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500 fade-in" style={{animationDelay: '0.2s'}}>
+          <div className="bg-white p-6 rounded-xl shadow-sm border-l-4 border-purple-500 fade-in" style={{ animationDelay: '0.2s' }}>
             <p className="text-gray-500 text-sm">โครงสร้างข้อมูล</p>
             <h2 className="text-xl font-bold text-gray-800 mt-1 text-purple-600 flex items-center">
               ตรวจสอบแล้ว <CheckCircle2 className="ml-2" size={20} />
@@ -284,7 +284,7 @@ ${JSON.stringify(compressedData)}`;
         </div>
 
         {/* AI Analysis Section */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-sm border border-blue-100 fade-in" style={{animationDelay: '0.3s'}}>
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-sm border border-blue-100 fade-in" style={{ animationDelay: '0.3s' }}>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
             <div>
               <h2 className="text-lg font-bold text-indigo-900 flex items-center">
@@ -293,14 +293,14 @@ ${JSON.stringify(compressedData)}`;
               <p className="text-sm text-indigo-700">ใช้ Gemini AI ในการวิเคราะห์จุดแข็ง จุดอ่อน และข้อเสนอแนะจากคะแนนของคุณ</p>
             </div>
             <div className="flex w-full md:w-auto gap-2">
-              <input 
-                type="password" 
+              <input
+                type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
-                placeholder="ใส่ Gemini API Key ที่นี่..." 
+                placeholder="ใส่ Gemini API Key ที่นี่..."
                 className="px-4 py-2 rounded-lg border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-64"
               />
-              <button 
+              <button
                 onClick={handleAnalyze}
                 disabled={isAnalyzing}
                 className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white px-4 py-2 rounded-lg font-medium transition whitespace-nowrap flex items-center justify-center min-w-[120px]"
@@ -309,7 +309,7 @@ ${JSON.stringify(compressedData)}`;
               </button>
             </div>
           </div>
-          
+
           {isAnalyzing && (
             <div className="text-center py-8 text-indigo-500 fade-in">
               <Loader2 className="animate-spin mx-auto mb-2" size={32} />
@@ -328,7 +328,7 @@ ${JSON.stringify(compressedData)}`;
           )}
 
           {aiResult && !isAnalyzing && !aiError && (
-            <div 
+            <div
               className="bg-white p-6 rounded-xl shadow-inner border border-indigo-100 text-gray-700 ai-content text-sm md:text-base fade-in"
               dangerouslySetInnerHTML={{ __html: aiResult }}
             />
@@ -336,12 +336,12 @@ ${JSON.stringify(compressedData)}`;
         </div>
 
         {/* Data Table Section */}
-        <div className="bg-white rounded-xl shadow-sm fade-in" style={{animationDelay: '0.4s'}}>
+        <div className="bg-white rounded-xl shadow-sm fade-in" style={{ animationDelay: '0.4s' }}>
           <div className="p-4 md:p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
             <h2 className="text-lg font-bold text-gray-800 flex items-center">
               <List className="text-gray-400 mr-2" size={20} /> รายละเอียดรายวิชา
             </h2>
-            <select 
+            <select
               value={selectedSemester}
               onChange={(e) => {
                 setSelectedSemester(Number(e.target.value));
@@ -394,83 +394,84 @@ ${JSON.stringify(compressedData)}`;
                   const grade = getGradeString(scorePercent, evalType);
 
                   return (
-                  <React.Fragment key={subjIndex}>
-                    <tr className="bg-white border-b hover:bg-gray-50 transition">
-                      <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{subj.course_code || '-'}</td>
-                      <td className="px-6 py-4">
-                        <div className="font-medium text-gray-800">{subj.course_name || '-'}</div>
-                        <div className="text-xs text-gray-400">{subj.course_type || ''}</div>
-                      </td>
-                      <td className="px-6 py-4 text-center">{subj.credits || '-'}</td>
-                      <td className="px-6 py-4 text-center font-bold text-blue-600">
-                        {scorePercent !== null ? scorePercent.toFixed(2) + '%' : '-'}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${getGradeBadgeColor(grade)}`}>
-                          {grade}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <button 
-                          onClick={() => toggleDetails(subjIndex)}
-                          className="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-full transition"
-                        >
-                          {expandedSubjects.has(subjIndex) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        </button>
-                      </td>
-                    </tr>
-                    
-                    {/* Details Sub-Row */}
-                    {expandedSubjects.has(subjIndex) && (
-                      <tr className="bg-gray-50 border-b fade-in">
-                        <td colSpan="6" className="p-6">
-                          <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-                            <table className="w-full text-xs text-left text-gray-500">
-                              <thead className="bg-gray-100 text-gray-700">
-                                <tr>
-                                  <th className="px-4 py-3">รายการประเมิน</th>
-                                  <th className="px-4 py-3 text-center">คะแนนดิบ (ได้/เต็ม)</th>
-                                  <th className="px-4 py-3 text-center">สัดส่วน % เต็ม</th>
-                                  <th className="px-4 py-3 text-center">% ที่ได้จริง</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {subj.details && subj.details.length > 0 ? (
-                                  subj.details
-                                    .filter(d => (d.item && d.item.trim() !== '') || d.weight === 100 || d.full_score !== null)
-                                    .map((detail, dIndex) => {
-                                      const actual = calculateDetailActualPercent(detail);
-                                      return (
-                                        <tr key={dIndex} className="border-b last:border-0 hover:bg-gray-50">
-                                          <td className="px-4 py-2 font-medium text-gray-700">
-                                            {detail.item || (!detail.section && detail.weight === 100 ? 'รวมทั้งหมด (Total)' : '-')} <br />
-                                            <span className="text-gray-400 text-[10px]">{detail.section}</span>
-                                          </td>
-                                          <td className="px-4 py-2 text-center">
-                                            {detail.obtained_score !== null && detail.obtained_score !== undefined ? detail.obtained_score : '-'} 
-                                            / 
-                                            {detail.full_score || '-'}
-                                          </td>
-                                          <td className="px-4 py-2 text-center text-gray-500">{detail.weight || '-'}%</td>
-                                          <td className="px-4 py-2 text-center font-bold text-blue-600">
-                                            {actual !== null ? actual.toFixed(2) + '%' : '-'}
-                                          </td>
-                                        </tr>
-                                      );
-                                    })
-                                ) : (
-                                  <tr>
-                                    <td colSpan="4" className="px-4 py-4 text-center text-gray-400">ไม่มีข้อมูลคะแนนย่อย</td>
-                                  </tr>
-                                )}
-                              </tbody>
-                            </table>
-                          </div>
+                    <React.Fragment key={subjIndex}>
+                      <tr className="bg-white border-b hover:bg-gray-50 transition">
+                        <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{subj.course_code || '-'}</td>
+                        <td className="px-6 py-4">
+                          <div className="font-medium text-gray-800">{subj.course_name || '-'}</div>
+                          <div className="text-xs text-gray-400">{subj.course_type || ''}</div>
+                        </td>
+                        <td className="px-6 py-4 text-center">{subj.credits || '-'}</td>
+                        <td className="px-6 py-4 text-center font-bold text-blue-600">
+                          {scorePercent !== null ? scorePercent.toFixed(2) + '%' : '-'}
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${getGradeBadgeColor(grade)}`}>
+                            {grade}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">
+                          <button
+                            onClick={() => toggleDetails(subjIndex)}
+                            className="text-blue-500 hover:text-blue-700 bg-blue-50 p-2 rounded-full transition"
+                          >
+                            {expandedSubjects.has(subjIndex) ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          </button>
                         </td>
                       </tr>
-                    )}
-                  </React.Fragment>
-                )})}
+
+                      {/* Details Sub-Row */}
+                      {expandedSubjects.has(subjIndex) && (
+                        <tr className="bg-gray-50 border-b fade-in">
+                          <td colSpan="6" className="p-6">
+                            <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                              <table className="w-full text-xs text-left text-gray-500">
+                                <thead className="bg-gray-100 text-gray-700">
+                                  <tr>
+                                    <th className="px-4 py-3">รายการประเมิน</th>
+                                    <th className="px-4 py-3 text-center">คะแนนดิบ (ได้/เต็ม)</th>
+                                    <th className="px-4 py-3 text-center">สัดส่วน % เต็ม</th>
+                                    <th className="px-4 py-3 text-center">% ที่ได้จริง</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {subj.details && subj.details.length > 0 ? (
+                                    subj.details
+                                      .filter(d => (d.item && d.item.trim() !== '') || d.weight === 100 || d.full_score !== null)
+                                      .map((detail, dIndex) => {
+                                        const actual = calculateDetailActualPercent(detail);
+                                        return (
+                                          <tr key={dIndex} className="border-b last:border-0 hover:bg-gray-50">
+                                            <td className="px-4 py-2 font-medium text-gray-700">
+                                              {detail.item || (!detail.section && detail.weight === 100 ? 'รวมทั้งหมด (Total)' : '-')} <br />
+                                              <span className="text-gray-400 text-[10px]">{detail.section}</span>
+                                            </td>
+                                            <td className="px-4 py-2 text-center">
+                                              {detail.obtained_score !== null && detail.obtained_score !== undefined ? detail.obtained_score : '-'}
+                                              /
+                                              {detail.full_score || '-'}
+                                            </td>
+                                            <td className="px-4 py-2 text-center text-gray-500">{detail.weight || '-'}%</td>
+                                            <td className="px-4 py-2 text-center font-bold text-blue-600">
+                                              {actual !== null ? actual.toFixed(2) + '%' : '-'}
+                                            </td>
+                                          </tr>
+                                        );
+                                      })
+                                  ) : (
+                                    <tr>
+                                      <td colSpan="4" className="px-4 py-4 text-center text-gray-400">ไม่มีข้อมูลคะแนนย่อย</td>
+                                    </tr>
+                                  )}
+                                </tbody>
+                              </table>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  )
+                })}
               </tbody>
             </table>
           </div>
